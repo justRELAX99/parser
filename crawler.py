@@ -2,7 +2,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 from datetime import datetime
-from multiprocessing import pool
+from multiprocessing import Pool
 
 def get_html(url):
     response=requests.get(url)
@@ -26,11 +26,12 @@ def get_all_page_genre(html):
 def get_music_fromPage(url,style):
     url2='https://zaycev.net'
     musics=[]
+    print(url)
     for j in range(0,1):
         url=url.replace('_'+str(j),'_'+str(j+1))
         soup=BeautifulSoup(get_html(url),'lxml')
         count=soup.find(class_='pager__page pager__page_current').text
-        if(count=='1')and(j!=0):
+        if(count=='1')and(j!=0):#если дошли до первой страницы,то выходим
             break
         songsOnPage=soup.find(class_='musicset-track-list__items').findAll(class_='musicset-track clearfix')
         for i in songsOnPage:
@@ -49,23 +50,29 @@ def get_music_fromPage(url,style):
 
 def ToFileJSON(all_music):
     all_data=[]
-    f=open('your_file.json', 'w', encoding='utf-8')
+    f=open('your_file.json', 'a', encoding='utf-8')
     for i in all_music:
         data={'name':i[0],'song_name':i[1],'duration':i[2],'downloadURL':i[3],'genre':i[4]}
         all_data.append(data)
     json.dump({'music':all_data},f,indent=4, ensure_ascii=False)
     f.close()
 
+def make_all(page_genre):
+    get_music_fromPage(page_genre[0],page_genre[1])
+    ToFileJSON(get_music_fromPage(page_genre[0],page_genre[1]))
 
 def main():
     start=datetime.now()
+    
+    f=open('your_file.json', 'w', encoding='utf-8')#? для очистки файла(на время)
+    f.close()
 
     all_music=[]
     url='https://zaycev.net/genres'
-    all_page_genre=get_all_page_genre(get_html(url))
-    
-    all_music=get_music_fromPage(all_page_genre[14][0],all_page_genre[14][1])
-    ToFileJSON(all_music)
+    all_pages_genre=get_all_page_genre(get_html(url))
+
+    with Pool(14) as p:
+        p.map(make_all,all_pages_genre)
 
     end=datetime.now()
     total=end-start
