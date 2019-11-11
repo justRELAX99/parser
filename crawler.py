@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from multiprocessing import pool
 
-
 def get_html(url):
     response=requests.get(url)
     return response.text
@@ -27,7 +26,7 @@ def get_all_page_genre(html):
 def get_music_fromPage(url,style):
     url2='https://zaycev.net'
     musics=[]
-    for j in range(0,70000):
+    for j in range(0,1):
         url=url.replace('_'+str(j),'_'+str(j+1))
         soup=BeautifulSoup(get_html(url),'lxml')
         count=soup.find(class_='pager__page pager__page_current').text
