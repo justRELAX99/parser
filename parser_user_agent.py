@@ -25,9 +25,9 @@ def ToFileTXT(user_agents):
 
 def main():
     user_agents=[]
-    user_agents=get_user_agents(get_html('https://myip.ms/browse/comp_browseragents/1/sort/4#comp_browseragents_tbl_top'))
+    html=get_html('https://myip.ms/browse/comp_browseragents/1/sort/4#comp_browseragents_tbl_top')
+    user_agents=get_user_agents(html)
     ToFileTXT(user_agents)
-    for i in user_agents:
-        print(i)
+
 if __name__=='__main__':
     main()
