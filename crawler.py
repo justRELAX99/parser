@@ -34,7 +34,7 @@ def get_all_pages_genre(html):
 def get_music_from_Page(url,style,proxy=None,useragent=None):
     url2='https://zaycev.net'
     all_music=[]
-    for j in range(0,1):
+    for j in range(0,200):
         if(j%100==0):
             change_proxy_and_user_agent(proxy,useragent)#меняем прокси и юзер агента каждые 100 страниц
         url=url.replace('index_'+str(j),'index_'+str(j+1))
@@ -102,17 +102,20 @@ def main():
     url='https://zaycev.net/genres'
     html=get_html(url)
     all_pages_genre=get_all_pages_genre(html)
+    all_pages_genre.pop(-1)#удаляем жанр другое
     all_music=[]
     all_music2=[]
-    #update_proxy_txt()
+    update_proxy_txt()
     file_path = "user_agent.txt"
     if((os.path.exists(file_path)==False) or (os.stat(file_path).st_size == 0)):
        create_user_agent_txt()
-    with Pool(14) as p:
+    with Pool(len(all_pages_genre-1)) as p:
        all_music+=p.map(make_all,all_pages_genre)#? почему то создает список со списками по жанрам
     
-    all_music2=[item for sublist in all_music for item in sublist]
+    all_music2=[item for sublist in all_music for item in sublist]#? по этому тут разделяем все в одно
+
     To_File_JSON(all_music2)
+    print(len(all_music2))
     end=datetime.now()
     total=end-start
     print(str(total))
